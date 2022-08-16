@@ -142,20 +142,30 @@ void SWDOperation::AddMarkers( SWDAnalyzerResults* pResults )
     for( std::vector<SWDBit>::iterator bi( bits.begin() ); bi != bits.end(); bi++ )
     {
         int ndx = bi - bits.begin();
-
-        // turnaround
-        if( ndx == 8 || ndx == 12 && !IsRead() )
-            pResults->AddMarker( ( bi->falling + bi->rising ) / 2, AnalyzerResults::X, pResults->GetSettings()->mSWCLK );
-
-        // write
-        else if( ndx < 8 || ndx > 12 && !IsRead() )
-            pResults->AddMarker( bi->falling, bi->state_falling == BIT_HIGH ? AnalyzerResults::One : AnalyzerResults::Zero,
+        
+        // sampling positions according to the ARM SWD specification:
+        //
+        //   The host writes data to SWDIO on the falling edge of SWDCLK. The host reads data from SWDIO
+        //   on the rising edge of SWDCLK. The target writes data to SWDIO on the rising edge of SWDCLK.
+        //   The target reads data from SWDIO on the rising edge of SWDCLK.
+        //
+        // so bits that are 'written' by the host ('write' bits in the analyzer) should be labelled at the
+        // rising edged of the clock, bits that are 'read' by the host ('read' bits in the analyzer) should
+        // be labelled just before the rising edge of the clock
+        //
+        if( ndx == 8 || ndx == 12 && !IsRead() ) {
+            // turnaround
+            pResults->AddMarker( bi->rising, AnalyzerResults::X, pResults->GetSettings()->mSWCLK );
+        } else if( ndx < 8 || ndx > 12 && !IsRead() ) {
+            // write - labelled on the rising edge...
+            pResults->AddMarker( bi->rising, bi->state_falling == BIT_HIGH ? AnalyzerResults::One : AnalyzerResults::Zero,
                                  pResults->GetSettings()->mSWCLK );
-        // read
-        else
-            pResults->AddMarker( (U64)(bi->rising + ((bi->falling - bi->rising) * 0.8)), // just before the falling edge [captain]
+        } else {
+            // read - labelled just before the rising edge...
+            pResults->AddMarker( (U64)(bi->rising - ((bi->falling - bi->rising) * 0.2)), // just before the falling edge [captain]
                                  bi->state_rising == BIT_HIGH ? AnalyzerResults::One : AnalyzerResults::Zero,
                                  pResults->GetSettings()->mSWCLK );
+        }
     }
 }
 
