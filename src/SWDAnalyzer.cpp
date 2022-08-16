@@ -108,7 +108,7 @@ const char* SWDAnalyzer::GetAnalyzerName() const
 
 const char* GetAnalyzerName()
 {
-    return "SWDx";
+    return "SWD-fitch";
 }
 
 Analyzer* CreateAnalyzer()
