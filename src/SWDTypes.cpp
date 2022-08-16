@@ -153,7 +153,8 @@ void SWDOperation::AddMarkers( SWDAnalyzerResults* pResults )
                                  pResults->GetSettings()->mSWCLK );
         // read
         else
-            pResults->AddMarker( bi->rising, bi->state_rising == BIT_HIGH ? AnalyzerResults::One : AnalyzerResults::Zero,
+            pResults->AddMarker( (U64)(bi->rising + ((bi->falling - bi->rising) * 0.8)), // just before the falling edge [captain]
+                                 bi->state_rising == BIT_HIGH ? AnalyzerResults::One : AnalyzerResults::Zero,
                                  pResults->GetSettings()->mSWCLK );
     }
 }
