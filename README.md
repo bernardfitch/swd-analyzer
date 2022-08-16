@@ -1,3 +1,8 @@
+This is a tweaked fork of the original [Saleae SWDAnalyzer](https://github.com/saleae/swd-analyzer) where the bit-level sampling 
+annotation labels for bits that are read are in a more appropriate position that the original (e.g. addressing the issue raised in 
+[#2](https://github.com/saleae/swd-analyzer/issues/2) - making less changes than [nezza's PR](https://github.com/saleae/swd-analyzer/pull/4) 
+which seems to address more issues)
+
 # Saleae ARM Serial Wire Debug (SWD) Analyzer
 
 Saleae ARM Serial Wire Debug (SWD) Analyzer
